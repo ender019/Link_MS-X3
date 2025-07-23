@@ -2,6 +2,7 @@ package com.unknown.link.controllers;
 
 import com.unknown.link.dtos.SubDTO;
 import com.unknown.link.dtos.UserDTO;
+import com.unknown.link.dtos.UserListDTO;
 import com.unknown.link.entities.User;
 import com.unknown.link.services.SubService;
 import lombok.AllArgsConstructor;
@@ -12,19 +13,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Slf4j
-@RestController("/subscribe")
+@RestController
+@RequestMapping("/subscribe")
 @AllArgsConstructor
 public class SubController {
     private final SubService subService;
 
     @GetMapping("/subs")
-    public List<String> getSubs(@RequestParam String user_id) {
+    public UserListDTO getSubs(@RequestParam String user_id) {
         log.debug("Get subscribes of {}", user_id);
         return subService.getSubscribes(user_id);
     }
 
     @GetMapping("/subers")
-    public List<String> getSubers(@RequestParam String sub_id) {
+    public UserListDTO getSubers(@RequestParam String sub_id) {
         log.debug("Get subscribers of {}", sub_id);
         return subService.getSubscribers(sub_id);
     }
@@ -58,7 +60,7 @@ public class SubController {
     }
 
     @DeleteMapping("/user")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delUser(@RequestBody UserDTO data) {
         log.debug("Delete user by id {}", data);
         subService.delUser(data.userId());
