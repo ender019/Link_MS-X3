@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Configuration
-public class WebClientConfiguration {
+public class WebClientConfig {
 
     @Value("${server.gateway}")
     private String GATEWAY_URL;
