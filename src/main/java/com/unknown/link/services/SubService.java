@@ -54,11 +54,12 @@ public class SubService {
     }
 
     @Transactional
-    public void addSubscribe(String userId, String sub_id) {
-        var user = userRepository.findUserByUserId(userId).orElse(
-                userRepository.save(new User(userId))
-        );
-        var sub = userRepository.findUserByUserId(sub_id).orElseThrow(() -> new NoSuchElementException("Sub not found"));
+    public void addSubscribe(String userId, String subId) {
+        User user, sub;
+        var user0 = userRepository.findUserByUserId(userId);
+        user = user0.orElseGet(() -> userRepository.save(new User(userId)));
+        var sub0 = userRepository.findUserByUserId(subId);
+        sub = sub0.orElseGet(() -> userRepository.save(new User(subId)));
         if (user.getSubs().stream().anyMatch(el -> el.getSubscribe().equals(sub)))
             throw new DataIntegrityViolationException("Subscribe already exists");
         var subs = new Subscribe();
