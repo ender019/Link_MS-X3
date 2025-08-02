@@ -1,7 +1,6 @@
 package com.unknown.link.controllers;
 
 import com.unknown.link.dtos.SubDTO;
-import com.unknown.link.dtos.UserDTO;
 import com.unknown.link.dtos.UserListDTO;
 import com.unknown.link.entities.User;
 import com.unknown.link.services.SubService;
@@ -43,14 +42,6 @@ public class SubController {
         return subService.getUser();
     }
 
-    @Operation(summary = "Add new user", description = "Добавляет нового пользователя.")
-    @PostMapping("/user")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void createUser(@RequestBody UserDTO data) {
-        log.debug("Create user with id {}", data);
-        subService.addUser(data.userId());
-    }
-
     @Operation(summary = "Add new subscribe", description = "Добавляет подписку.")
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
@@ -65,13 +56,5 @@ public class SubController {
     public void deleteSub(@RequestBody SubDTO data) {
         log.debug("Delete sub from {} to {}", data.user_id(), data.sub_id());
         subService.delSubscribe(data.user_id(), data.sub_id());
-    }
-
-    @Operation(summary = "Delete user data", description = "Удаляет пользователя по ИД.")
-    @DeleteMapping("/user")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delUser(@RequestBody UserDTO data) {
-        log.debug("Delete user by id {}", data);
-        subService.delUser(data.userId());
     }
 }
