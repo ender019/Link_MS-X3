@@ -67,7 +67,7 @@ public class SubController {
         subService.delSubscribe(data.user_id(), data.sub_id());
     }
 
-    @Operation(summary = "Delete user data", description = "Удаляет пользователя по имени.")
+    @Operation(summary = "Delete user data", description = "Удаляет пользователя по ИД.")
     @DeleteMapping("/user")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delUser(@RequestBody UserDTO data) {
