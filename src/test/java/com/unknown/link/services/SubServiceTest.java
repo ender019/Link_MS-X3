@@ -164,57 +164,44 @@ class SubServiceTest {
     }
 
     @Test
-    void addUser_shouldSaveNewUser() {
+    void addSubscribe_NewUser_NewSubscribe_Success() {
         // Arrange
+        String userId = "user1";
+        String subId = "user2";
+
+        User user = new User(userId);
+        User subscribeUser = new User(subId);
+
         Mockito.when(userRepository.findUserByUserId(userId))
-                .thenReturn(Optional.empty());
-
-        // Act
-        subService.addUser(userId);
-
-        // Assert
-        Mockito.verify(userRepository).save(argThat(u -> u.getUserId().equals(userId)));
-    }
-
-    @Test
-    void addUser_shouldThrowWhenUserExists() {
-        // Arrange
-        Mockito.when(userRepository.findUserByUserId(userId))
-                .thenReturn(Optional.of(user));
-
-        // Act & Assert
-        Assertions.assertThrows(DataIntegrityViolationException.class, () -> subService.addUser(userId));
-    }
-
-    @Test
-    void addSubscribe_shouldCreateNewSubscription() {
-        // Arrange
-        Mockito.when(userRepository.findUserByUserId(userId))
-                .thenReturn(Optional.of(user));
+                .thenReturn(Optional.empty())
+                .thenReturn(Optional.of(user)); // Для последующих вызовов
         Mockito.when(userRepository.findUserByUserId(subId))
                 .thenReturn(Optional.of(subscribeUser));
-        Mockito.when(subRepository.save(any(Subscribe.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        Mockito.when(userRepository.save(any(User.class)))
+                .thenReturn(user); // Всегда возвращаем сохраненного пользователя
 
         // Act
         subService.addSubscribe(userId, subId);
 
         // Assert
-        Mockito.verify(subRepository).save(argThat(sub ->
-                sub.getUserId().equals(userId) &&
-                        sub.getSubscribe().equals(subscribeUser)
-        ));
-        Mockito.verify(userRepository).save(user);
+        Mockito.verify(userRepository, Mockito.times(2)).save(any(User.class));
+        Mockito.verify(subRepository, Mockito.times(1)).save(any(Subscribe.class));
+        Assertions.assertTrue(user.getSubs().stream()
+                .anyMatch(s -> s.getSubscribe().equals(subscribeUser)));
     }
 
     @Test
-    void addSubscribe_shouldThrowWhenUserNotFound() {
-        // Arrange
-        Mockito.when(userRepository.findUserByUserId(userId))
-                .thenReturn(Optional.empty());
+    void addSubscribe_ExistingUser_NewSubscribe_Success() {
+        Mockito.when(userRepository.findUserByUserId(userId)).thenReturn(Optional.of(user));
+        Mockito.when(userRepository.findUserByUserId(subId)).thenReturn(Optional.of(subscribeUser));
 
-        // Act & Assert
-        Assertions.assertThrows(NoSuchElementException.class, () -> subService.addSubscribe(userId, subId));
+        // Act
+        subService.addSubscribe(userId, subId);
+
+        // Assert
+        Mockito.verify(userRepository, Mockito.times(1)).save(user);
+        Mockito.verify(subRepository, Mockito.times(1)).save(any(Subscribe.class));
+        Assertions.assertTrue(user.getSubs().stream().anyMatch(s -> s.getSubscribe().equals(subscribeUser)));
     }
 
     @Test
@@ -280,28 +267,5 @@ class SubServiceTest {
         Assertions.assertNotNull(result);
         Assertions.assertEquals(2, result.size());
         Mockito.verify(userRepository).findAll();
-    }
-
-    @Test
-    void delUser_shouldDeleteUser() {
-        // Arrange
-        Mockito.when(userRepository.findUserByUserId(userId))
-                .thenReturn(Optional.of(user));
-
-        // Act
-        subService.delUser(userId);
-
-        // Assert
-        Mockito.verify(userRepository).delete(user);
-    }
-
-    @Test
-    void delUser_shouldThrowWhenUserNotFound() {
-        // Arrange
-        Mockito.when(userRepository.findUserByUserId(userId))
-                .thenReturn(Optional.empty());
-
-        // Act & Assert
-        Assertions.assertThrows(NoSuchElementException.class, () -> subService.delUser(userId));
     }
 }
