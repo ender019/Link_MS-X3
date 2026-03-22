@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unknown.link.controllers.SubController;
 import com.unknown.link.dtos.GUserDTO;
 import com.unknown.link.dtos.SubDTO;
-import com.unknown.link.dtos.UserDTO;
 import com.unknown.link.dtos.UserListDTO;
 import com.unknown.link.entities.User;
 import com.unknown.link.services.SubService;
@@ -89,25 +88,12 @@ public class SubControllerTest {
         Mockito.when(subService.getUser()).thenReturn(users);
 
         mockMvc.perform(get("/subscribe/user"))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id").value(1L))
                 .andExpect(jsonPath("$[1].id").value(2L));
 
         Mockito.verify(subService, Mockito.times(1)).getUser();
-    }
-
-    @Test
-    public void createUserTest() throws Exception {
-        UserDTO userDTO = new UserDTO("newUser");
-        String requestBody = objectMapper.writeValueAsString(userDTO);
-
-        mockMvc.perform(post("/subscribe/user")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
-                .andExpect(status().isCreated());
-
-        Mockito.verify(subService, Mockito.times(1)).addUser("newUser");
     }
 
     @Test
@@ -134,18 +120,5 @@ public class SubControllerTest {
                 .andExpect(status().isNoContent());
 
         Mockito.verify(subService, Mockito.times(1)).delSubscribe("user111", "sub222");
-    }
-
-    @Test
-    public void delUserTest() throws Exception {
-        UserDTO userDTO = new UserDTO("userToDelete");
-        String requestBody = objectMapper.writeValueAsString(userDTO);
-
-        mockMvc.perform(delete("/subscribe/user")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
-                .andExpect(status().isNoContent());
-
-        Mockito.verify(subService, Mockito.times(1)).delUser("userToDelete");
     }
 }

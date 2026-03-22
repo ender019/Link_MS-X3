@@ -54,16 +54,12 @@ public class SubService {
     }
 
     @Transactional
-    public void addUser(String userId) {
-        userRepository.findUserByUserId(userId)
-                .ifPresent(_ -> {throw new DataIntegrityViolationException("User already exists");});
-        userRepository.save(new User(userId));
-    }
-
-    @Transactional
-    public void addSubscribe(String userId, String sub_id) {
-        var user = userRepository.findUserByUserId(userId).orElseThrow(() -> new NoSuchElementException("User not found"));
-        var sub = userRepository.findUserByUserId(sub_id).orElseThrow(() -> new NoSuchElementException("User not found"));
+    public void addSubscribe(String userId, String subId) {
+        User user, sub;
+        var user0 = userRepository.findUserByUserId(userId);
+        user = user0.orElseGet(() -> userRepository.save(new User(userId)));
+        var sub0 = userRepository.findUserByUserId(subId);
+        sub = sub0.orElseGet(() -> userRepository.save(new User(subId)));
         if (user.getSubs().stream().anyMatch(el -> el.getSubscribe().equals(sub)))
             throw new DataIntegrityViolationException("Subscribe already exists");
         var subs = new Subscribe();
@@ -77,7 +73,7 @@ public class SubService {
     @Transactional
     public void delSubscribe(String userId, String sub_id) {
         var user = userRepository.findUserByUserId(userId).orElseThrow(() -> new NoSuchElementException("User not found"));
-        var sub = userRepository.findUserByUserId(sub_id).orElseThrow(() -> new NoSuchElementException("User not found"));
+        var sub = userRepository.findUserByUserId(sub_id).orElseThrow(() -> new NoSuchElementException("Sub not found"));
         var subs = user.getSubs().stream().filter(el -> el.getSubscribe().equals(sub)).findFirst()
                 .orElseThrow(() -> new NoSuchElementException("Subscribe not found"));
         subRepository.delete(subs);
@@ -87,11 +83,5 @@ public class SubService {
 
     public List<User> getUser() {
         return userRepository.findAll();
-    }
-
-    @Transactional
-    public void delUser(String userId) {
-        var user = userRepository.findUserByUserId(userId).orElseThrow(() -> new NoSuchElementException("User not found"));
-        userRepository.delete(user);
     }
 }
